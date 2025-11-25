@@ -231,7 +231,7 @@ class PageResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            PageResource\RelationManagers\RevisionsRelationManager::class,
         ];
     }
 

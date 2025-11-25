@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Observers\PostObserver;
+use App\Traits\HasRevisions;
 use App\Traits\LogsActivityAllDirty;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
@@ -19,7 +20,7 @@ use Illuminate\Support\Str;
 #[ObservedBy([PostObserver::class])]
 class Post extends Model
 {
-    use HasFactory, LogsActivityAllDirty, SoftDeletes;
+    use HasFactory, HasRevisions, LogsActivityAllDirty, SoftDeletes;
 
     /**
      * @var list<string>

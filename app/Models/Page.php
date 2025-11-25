@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Traits\HasRevisions;
 use App\Traits\LogsActivityAllDirty;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -16,7 +17,7 @@ use Illuminate\Support\Str;
 
 class Page extends Model
 {
-    use HasFactory, LogsActivityAllDirty, SoftDeletes;
+    use HasFactory, HasRevisions, LogsActivityAllDirty, SoftDeletes;
 
     /**
      * @var list<string>

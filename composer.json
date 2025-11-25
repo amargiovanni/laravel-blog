@@ -13,6 +13,7 @@
         "driftingly/rector-laravel": "^2.1",
         "filament/filament": "^3.0",
         "intervention/image-laravel": "^1.5",
+        "jfcherng/php-diff": "^6.16",
         "laravel/framework": "^12.38",
         "laravel/pail": "^1.2",
         "laravel/prompts": "^0.3.7",

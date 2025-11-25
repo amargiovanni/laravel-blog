@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Traits\LogsActivityAllDirty;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Cache;
 class WidgetInstance extends Model
 {
     /** @use HasFactory<\Database\Factories\WidgetInstanceFactory> */
-    use HasFactory;
+    use HasFactory, LogsActivityAllDirty;
 
     protected $fillable = [
         'area',

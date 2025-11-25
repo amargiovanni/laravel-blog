@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Traits\LogsActivityAllDirty;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 class MenuItem extends Model
 {
     /** @use HasFactory<\Database\Factories\MenuItemFactory> */
-    use HasFactory;
+    use HasFactory, LogsActivityAllDirty;
 
     protected $fillable = [
         'menu_id',
