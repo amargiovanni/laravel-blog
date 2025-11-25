@@ -25,6 +25,26 @@ Implement the public-facing blog templates: homepage, single post, single page, 
 | IV. Code Quality Gates | ✅ PASS | Pint, Larastan, tests |
 | V. Simplicity & YAGNI | ✅ PASS | Simple Blade templates |
 
+## Dependencies
+
+### Internal Feature Dependencies
+
+| Feature | Dependency Type | Description |
+|---------|----------------|-------------|
+| 001-blog-engine | Required | Post, Category, Tag, User models |
+| 003-static-pages | Required | Page model for static pages |
+| 004-menu-builder | Required | Navigation menu rendering (FR-015) |
+| 005-widgets-sidebar | Required | Sidebar widget areas (FR-016) |
+| 008-fulltext-search | Optional | Search functionality (SearchController, SearchService) |
+| 015-comments-system | Required | Comments section on posts (FR-005) |
+
+### Implementation Notes
+
+- **Search**: Do NOT create SearchController in this feature. Use the one from 008-fulltext-search.
+- **Menu**: Integrate `<x-navigation-menu>` component from 004-menu-builder
+- **Widgets**: Use `<x-widget-area location="sidebar">` from 005-widgets-sidebar
+- **Comments**: Include `<livewire:comment-list>` and `<livewire:comment-form>` from 015-comments-system
+
 ## Project Structure
 
 ```text

@@ -107,9 +107,9 @@
 - [ ] [T059] [P1] Register catch-all route GET /{slug} for pages → `routes/web.php`
 - [ ] [T060] [P1] Create pages/show.blade.php for single page view → `resources/views/pages/show.blade.php`
 - [ ] [T061] [P1] Create custom 404 error page → `resources/views/errors/404.blade.php`
-- [ ] [T062] [P2] Create SearchController with results method → `app/Http/Controllers/SearchController.php`
-- [ ] [T063] [P2] Register route GET /search → `routes/web.php`
-- [ ] [T064] [P2] Create search/results.blade.php for search results → `resources/views/search/results.blade.php`
+- [ ] [T062] [P2] **[DEP: 008-fulltext-search]** Integrate SearchController from 008-fulltext-search (do not duplicate)
+- [ ] [T063] [P2] **[DEP: 008-fulltext-search]** Verify /search route is registered by 008-fulltext-search
+- [ ] [T064] [P2] **[DEP: 008-fulltext-search]** Verify search/results.blade.php exists from 008-fulltext-search
 - [ ] [T065] [P2] Add social sharing meta tags (Open Graph, Twitter Cards) to all pages → `resources/views/components/seo-meta.blade.php`
 - [ ] [T066] [P3] Add structured data (JSON-LD) for blog posts → `resources/views/posts/show.blade.php`
 - [ ] [T067] [P3] Implement placeholder image for posts without featured image → `resources/views/components/post-card.blade.php`

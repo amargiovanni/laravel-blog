@@ -49,7 +49,7 @@
 ## Phase 5: US3 – Subscribe to Author Feed (P3)
 
 - [ ] [T023] [P3] [US3] Implement author() method for author-specific feed → `app/Http/Controllers/FeedController.php`
-- [ ] [T024] [P3] [US3] Register route GET /author/{id}/feed → `routes/web.php`
+- [ ] [T024] [P3] [US3] Register route GET /author/{username}/feed → `routes/web.php` (matches 007-public-frontend author route)
 - [ ] [T025] [P3] [US3] Set author name in feed title → `app/Http/Controllers/FeedController.php`
 - [ ] [T026] [P3] [US3] Return 404 for non-existent author → `app/Http/Controllers/FeedController.php`
 - [ ] [T027] [P3] [US3] Write tests for author feed → `tests/Feature/RssAuthorFeedTest.php`

@@ -105,16 +105,27 @@
 
 ---
 
-## Phase 9: Polish & Cross-Cutting Concerns
+## Phase 9: GDPR/CAN-SPAM Compliance
 
-- [ ] [T062] [P2] Add List-Unsubscribe header to all newsletter emails → `app/Mail/NewsletterMail.php`
-- [ ] [T063] [P2] Handle email delivery failures with retry logic → `app/Jobs/SendNewsletterJob.php`
-- [ ] [T064] [P3] Log subscription/unsubscription events → `app/Http/Controllers/SubscriptionController.php`
-- [ ] [T065] [P3] Add newsletter widget for sidebar → `app/Widgets/NewsletterWidget.php`
-- [ ] [T066] [P1] Run full test suite and fix any failures
-- [ ] [T067] [P1] Run `vendor/bin/pint --dirty` to fix code style
-- [ ] [T068] [P1] Update README or documentation if needed
-- [ ] [T069] [P1] Create PR and merge to main branch
+- [ ] [T062] [P1] Include physical mailing address in email footer (CAN-SPAM requirement) → `resources/views/emails/components/footer.blade.php`
+- [ ] [T063] [P1] Add List-Unsubscribe header to all newsletter emails (RFC 8058) → `app/Mail/NewsletterMail.php`
+- [ ] [T064] [P1] Add List-Unsubscribe-Post header for one-click unsubscribe → `app/Mail/NewsletterMail.php`
+- [ ] [T065] [P2] Store consent timestamp and IP address on subscription → `app/Models/Subscriber.php`
+- [ ] [T066] [P2] Implement data export for subscriber (GDPR Article 20) → `app/Filament/Resources/SubscriberResource.php`
+- [ ] [T067] [P2] Implement subscriber data deletion request handling → `app/Http/Controllers/UnsubscribeController.php`
+- [ ] [T068] [P3] Add privacy policy link to subscription form → `resources/views/components/newsletter-form.blade.php`
+- [ ] [T069] [P3] Log subscription/unsubscription events with timestamps → `app/Http/Controllers/SubscriptionController.php`
+
+---
+
+## Phase 10: Polish & Cross-Cutting Concerns
+
+- [ ] [T070] [P2] Handle email delivery failures with retry logic → `app/Jobs/SendNewsletterJob.php`
+- [ ] [T071] [P3] Add newsletter widget for sidebar → `app/Widgets/NewsletterWidget.php`
+- [ ] [T072] [P1] Run full test suite and fix any failures
+- [ ] [T073] [P1] Run `vendor/bin/pint --dirty` to fix code style
+- [ ] [T074] [P1] Update README or documentation if needed
+- [ ] [T075] [P1] Create PR and merge to main branch
 
 ---
 
@@ -130,6 +141,7 @@
 | US4 – Send Newsletter | 13 | P2 |
 | New Post Notifications | 6 | P2-P3 |
 | US5 – Templates | 5 | P3 |
-| Polish | 8 | Mixed |
+| GDPR/CAN-SPAM Compliance | 8 | P1-P3 |
+| Polish | 6 | Mixed |
 
-**Total Tasks: 69**
+**Total Tasks: 75**

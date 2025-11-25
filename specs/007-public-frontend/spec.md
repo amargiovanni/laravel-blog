@@ -160,5 +160,16 @@ A visitor wants to browse posts from a specific month or year.
 - Tailwind CSS is available for styling
 - Posts, categories, tags, and users already exist in the database
 - Menu Builder and Widgets features are implemented or will be available
-- Comments system exists and is functional
+- Comments system exists and is functional (see 015-comments-system)
 - Dark mode support follows existing admin panel patterns
+
+## Dependencies
+
+| Feature | Dependency Type | Description |
+|---------|----------------|-------------|
+| 001-blog-engine | Required | Post, Category, Tag, User models |
+| 003-static-pages | Required | Page model for static pages |
+| 004-menu-builder | Required | Navigation menu rendering |
+| 005-widgets-sidebar | Required | Sidebar widget areas |
+| 015-comments-system | Required | Comments section on posts (FR-005) |
+| 008-fulltext-search | Optional | Search functionality integration |

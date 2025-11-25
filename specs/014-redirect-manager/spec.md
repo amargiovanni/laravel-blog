@@ -115,7 +115,7 @@ An administrator wants to see which redirects are being used and identify dead r
 - **FR-011**: System MUST support export of redirects to CSV
 - **FR-012**: System MUST preserve query strings during redirect
 - **FR-013**: System MUST warn when source URL matches existing content
-- **FR-014**: System SHOULD support wildcard/regex patterns for flexible matching
+- **FR-014**: System SHOULD support wildcard/regex patterns for flexible matching *(Future Enhancement - not in initial scope)*
 - **FR-015**: System MUST restrict redirect management to users with appropriate permissions
 
 ### Key Entities
