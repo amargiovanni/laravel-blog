@@ -1,104 +1,157 @@
-# Implementation Plan: [FEATURE]
+# Implementation Plan: Contact Form
 
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
-
-**Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
+**Branch**: `013-contact-form` | **Date**: 2025-11-25 | **Spec**: [spec.md](spec.md)
 
 ## Summary
 
-[Extract from feature spec: primary requirement + technical approach from research]
+Implement contact form with validation, honeypot spam protection, rate limiting, email notifications, and admin message management via Filament.
 
 ## Technical Context
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
-
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [single/web/mobile - determines source structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+**Language/Version**: PHP 8.4+ with Laravel 12
+**Primary Dependencies**: Filament 4.x, Laravel Mail
+**Storage**: MySQL/SQLite for messages
+**Testing**: Pest 4.x
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-[Gates determined based on constitution file]
+All principles: ✅ PASS
 
 ## Project Structure
 
-### Documentation (this feature)
-
 ```text
-specs/[###-feature]/
-├── plan.md              # This file (/speckit.plan command output)
-├── research.md          # Phase 0 output (/speckit.plan command)
-├── data-model.md        # Phase 1 output (/speckit.plan command)
-├── quickstart.md        # Phase 1 output (/speckit.plan command)
-├── contracts/           # Phase 1 output (/speckit.plan command)
-└── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
+app/
+├── Models/
+│   └── ContactMessage.php
+├── Filament/Resources/
+│   └── ContactMessageResource.php
+├── Mail/
+│   └── ContactFormSubmission.php
+├── Http/
+│   ├── Controllers/
+│   │   └── ContactController.php
+│   └── Requests/
+│       └── ContactFormRequest.php
+└── View/Components/
+    └── ContactForm.php
+
+database/migrations/
+└── create_contact_messages_table.php
+
+resources/views/
+├── contact.blade.php
+├── emails/
+│   └── contact-submission.blade.php
+└── components/
+    └── contact-form.blade.php
 ```
 
-### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
+## Implementation Tasks
 
-```text
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
-src/
-├── models/
-├── services/
-├── cli/
-└── lib/
+### Phase 1: Database & Model
 
-tests/
-├── contract/
-├── integration/
-└── unit/
+| Task | Description | Acceptance |
+|------|-------------|------------|
+| T1.1 | Create contact_messages migration | Table exists with all fields |
+| T1.2 | Create ContactMessage model | Model with fillable and casts |
+| T1.3 | Add read status tracking | is_read boolean works |
 
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
+### Phase 2: Form & Controller
 
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
+| Task | Description | Acceptance |
+|------|-------------|------------|
+| T2.1 | Create ContactFormRequest | Validation rules defined |
+| T2.2 | Create ContactController | Controller handles submission |
+| T2.3 | Add contact route | Route accessible |
+| T2.4 | Create contact page view | Form displays correctly |
 
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
+### Phase 3: Form Component
 
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
-```
+| Task | Description | Acceptance |
+|------|-------------|------------|
+| T3.1 | Create ContactForm component | Component renders |
+| T3.2 | Implement name field | Field validates |
+| T3.3 | Implement email field | Email format validated |
+| T3.4 | Implement subject field | Field works |
+| T3.5 | Implement message field | Character limit enforced |
+| T3.6 | Display validation errors | Errors shown inline |
+| T3.7 | Show success message | Flash message works |
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+### Phase 4: Spam Protection
 
-## Complexity Tracking
+| Task | Description | Acceptance |
+|------|-------------|------------|
+| T4.1 | Implement honeypot field | Hidden field present |
+| T4.2 | Validate honeypot on submit | Bot submissions rejected |
+| T4.3 | Add rate limiting | IP throttled after limit |
+| T4.4 | Log blocked submissions | Logging for debugging |
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
+### Phase 5: Email Notification
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+| Task | Description | Acceptance |
+|------|-------------|------------|
+| T5.1 | Create ContactFormSubmission mailable | Mailable exists |
+| T5.2 | Create email template | Professional template |
+| T5.3 | Send on form submission | Email sent to admin |
+| T5.4 | Handle email failures | Error logged, message saved |
+
+### Phase 6: Admin Interface
+
+| Task | Description | Acceptance |
+|------|-------------|------------|
+| T6.1 | Create ContactMessageResource | Filament resource exists |
+| T6.2 | Implement list view | Messages listed |
+| T6.3 | Implement view action | Full message viewable |
+| T6.4 | Implement mark as read | Status toggles |
+| T6.5 | Implement delete action | Messages deletable |
+| T6.6 | Add unread count badge | Badge shows in nav |
+
+### Phase 7: Security
+
+| Task | Description | Acceptance |
+|------|-------------|------------|
+| T7.1 | Sanitize all input | XSS prevented |
+| T7.2 | Add CSRF protection | Token validated |
+| T7.3 | Escape output in admin | Safe display |
+
+### Phase 8: Testing
+
+| Task | Description | Acceptance |
+|------|-------------|------------|
+| T8.1 | Test form submission | E2E works |
+| T8.2 | Test validation errors | Errors displayed |
+| T8.3 | Test honeypot rejection | Bots blocked |
+| T8.4 | Test rate limiting | Throttle works |
+| T8.5 | Test email sending | Email received |
+| T8.6 | Test admin functions | CRUD works |
+| T8.7 | Test XSS prevention | No vulnerabilities |
+
+## Dependencies
+
+### External Packages
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| filament/filament | ^4.0 | Admin panel |
+
+Uses Laravel built-in: Mail, Validation, Rate Limiting.
+
+### Internal Dependencies
+
+- Settings for admin email address
+- Public frontend layout from 007-public-frontend
+
+## Risk Assessment
+
+| Risk | Probability | Impact | Mitigation |
+|------|-------------|--------|------------|
+| Spam submissions | Medium | Medium | Honeypot + rate limiting |
+| Email delivery issues | Low | Medium | Log messages, save to DB |
+| XSS attacks | Low | High | Input sanitization |
+
+## Artifacts
+
+- [research.md](research.md) - Spam protection and security research
+- [data-model.md](data-model.md) - Contact message schema
+- [quickstart.md](quickstart.md) - Quick implementation guide
+- [contracts/routes.md](contracts/routes.md) - Route specifications
