@@ -1,104 +1,122 @@
-# Implementation Plan: [FEATURE]
+# Implementation Plan: RSS Feed
 
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
-
-**Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
+**Branch**: `010-rss-feed` | **Date**: 2025-11-25 | **Spec**: [spec.md](spec.md)
 
 ## Summary
 
-[Extract from feature spec: primary requirement + technical approach from research]
+Implement RSS 2.0 feeds for blog content including main feed, category feeds, and author feeds. Support feed auto-discovery and proper XML generation with post metadata.
 
 ## Technical Context
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
-
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [single/web/mobile - determines source structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+**Language/Version**: PHP 8.4+ with Laravel 12
+**Primary Dependencies**: spatie/laravel-feed
+**Testing**: Pest 4.x
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-[Gates determined based on constitution file]
+All principles: ✅ PASS
 
 ## Project Structure
 
-### Documentation (this feature)
-
 ```text
-specs/[###-feature]/
-├── plan.md              # This file (/speckit.plan command output)
-├── research.md          # Phase 0 output (/speckit.plan command)
-├── data-model.md        # Phase 1 output (/speckit.plan command)
-├── quickstart.md        # Phase 1 output (/speckit.plan command)
-├── contracts/           # Phase 1 output (/speckit.plan command)
-└── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
+app/
+├── Http/Controllers/
+│   └── FeedController.php
+└── Models/
+    └── Post.php  # Add Feedable interface
+
+config/feed.php  # Feed configuration
+
+routes/web.php  # Feed routes
 ```
 
-### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
+## Implementation Tasks
 
-```text
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
-src/
-├── models/
-├── services/
-├── cli/
-└── lib/
+### Phase 1: Package Setup
 
-tests/
-├── contract/
-├── integration/
-└── unit/
+| Task | Description | Acceptance |
+|------|-------------|------------|
+| T1.1 | Install spatie/laravel-feed | Package in composer.json |
+| T1.2 | Publish feed config | config/feed.php exists |
 
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
+### Phase 2: Main Feed Implementation
 
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
+| Task | Description | Acceptance |
+|------|-------------|------------|
+| T2.1 | Configure main feed in config | Feed config has main feed entry |
+| T2.2 | Implement Feedable on Post model | Post implements toFeedItem() |
+| T2.3 | Add feed route at /feed | Route accessible and returns XML |
+| T2.4 | Configure feed metadata | Title, description, link present |
+| T2.5 | Set feed item limit | Only last 20 posts included |
 
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
+### Phase 3: Category and Author Feeds
 
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
-```
+| Task | Description | Acceptance |
+|------|-------------|------------|
+| T3.1 | Create FeedController | Controller exists |
+| T3.2 | Implement category feed route | /category/{slug}/feed works |
+| T3.3 | Implement author feed route | /author/{id}/feed works |
+| T3.4 | Configure dynamic feed titles | Feed title includes category/author name |
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+### Phase 4: Feed Content
 
-## Complexity Tracking
+| Task | Description | Acceptance |
+|------|-------------|------------|
+| T4.1 | Include post title | All items have title |
+| T4.2 | Include post content/excerpt | All items have description |
+| T4.3 | Include publication date | All items have pubDate |
+| T4.4 | Include author name | All items have author |
+| T4.5 | Include categories/tags | Items have category elements |
+| T4.6 | Include featured image enclosure | Items with images have enclosure |
+| T4.7 | Include permalink | All items have link and guid |
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
+### Phase 5: Auto-Discovery
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+| Task | Description | Acceptance |
+|------|-------------|------------|
+| T5.1 | Add RSS link tag to layout | Link tag in HTML head |
+| T5.2 | Add category-specific link on category pages | Contextual feed link present |
+| T5.3 | Add visible RSS icon/link | RSS link in header/footer |
+
+### Phase 6: Testing
+
+| Task | Description | Acceptance |
+|------|-------------|------------|
+| T6.1 | Test main feed XML validity | Valid RSS 2.0 output |
+| T6.2 | Test post inclusion | Published posts in feed |
+| T6.3 | Test draft exclusion | Drafts not in feed |
+| T6.4 | Test category feed filtering | Only category posts |
+| T6.5 | Test author feed filtering | Only author posts |
+| T6.6 | Test special character escaping | XML valid with special chars |
+| T6.7 | Test empty feed scenario | Valid empty feed returned |
+| T6.8 | Test invalid category 404 | 404 for non-existent category |
+
+## Dependencies
+
+### External Packages
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| spatie/laravel-feed | ^4.0 | RSS feed generation |
+
+### Internal Dependencies
+
+- Post model with published scope
+- Category model
+- User model
+- Public frontend routes from 007-public-frontend
+
+## Risk Assessment
+
+| Risk | Probability | Impact | Mitigation |
+|------|-------------|--------|------------|
+| XML encoding issues | Low | Medium | Use package's encoding |
+| Feed reader compatibility | Low | Medium | Test with major readers |
+| Performance with many posts | Low | Low | Limit feed items |
+
+## Artifacts
+
+- [research.md](research.md) - Package analysis and RSS specification
+- [data-model.md](data-model.md) - Feed structure and content mapping
+- [quickstart.md](quickstart.md) - Quick implementation guide
+- [contracts/routes.md](contracts/routes.md) - Route specifications
