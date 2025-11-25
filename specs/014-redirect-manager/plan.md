@@ -1,104 +1,145 @@
-# Implementation Plan: [FEATURE]
+# Implementation Plan: Redirect Manager
 
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
-
-**Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
+**Branch**: `014-redirect-manager` | **Date**: 2025-11-25 | **Spec**: [spec.md](spec.md)
 
 ## Summary
 
-[Extract from feature spec: primary requirement + technical approach from research]
+Implement redirect management system with 301/302 support, admin interface via Filament, automatic redirects on slug changes, hit tracking, and CSV import/export. Uses middleware for high-performance redirect execution.
 
 ## Technical Context
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
-
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [single/web/mobile - determines source structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+**Language/Version**: PHP 8.4+ with Laravel 12
+**Primary Dependencies**: Filament 4.x, Laravel Middleware
+**Storage**: MySQL/SQLite with caching
+**Testing**: Pest 4.x
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-[Gates determined based on constitution file]
+All principles: ✅ PASS
 
 ## Project Structure
 
-### Documentation (this feature)
-
 ```text
-specs/[###-feature]/
-├── plan.md              # This file (/speckit.plan command output)
-├── research.md          # Phase 0 output (/speckit.plan command)
-├── data-model.md        # Phase 1 output (/speckit.plan command)
-├── quickstart.md        # Phase 1 output (/speckit.plan command)
-├── contracts/           # Phase 1 output (/speckit.plan command)
-└── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
+app/
+├── Models/
+│   └── Redirect.php
+├── Filament/Resources/
+│   └── RedirectResource.php
+├── Http/Middleware/
+│   └── HandleRedirects.php
+├── Observers/
+│   └── PostObserver.php
+└── Services/
+    └── RedirectService.php
+
+database/migrations/
+└── create_redirects_table.php
 ```
 
-### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
+## Implementation Tasks
 
-```text
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
-src/
-├── models/
-├── services/
-├── cli/
-└── lib/
+### Phase 1: Database & Model
 
-tests/
-├── contract/
-├── integration/
-└── unit/
+| Task | Description | Acceptance |
+|------|-------------|------------|
+| T1.1 | Create redirects migration | Table exists with all fields |
+| T1.2 | Create Redirect model | Model with validation |
+| T1.3 | Add indexes for performance | Source URL indexed |
 
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
+### Phase 2: Middleware
 
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
+| Task | Description | Acceptance |
+|------|-------------|------------|
+| T2.1 | Create HandleRedirects middleware | Middleware registered |
+| T2.2 | Implement redirect matching | URLs matched correctly |
+| T2.3 | Execute 301/302 redirects | Correct status codes |
+| T2.4 | Preserve query strings | Params passed through |
+| T2.5 | Update hit counter | Count increments |
 
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
+### Phase 3: Caching
 
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
-```
+| Task | Description | Acceptance |
+|------|-------------|------------|
+| T3.1 | Cache redirect rules | Rules cached |
+| T3.2 | Invalidate on CRUD | Cache cleared on changes |
+| T3.3 | Optimize for performance | < 10ms redirect time |
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+### Phase 4: Admin Interface
 
-## Complexity Tracking
+| Task | Description | Acceptance |
+|------|-------------|------------|
+| T4.1 | Create RedirectResource | Filament resource exists |
+| T4.2 | Implement create form | Source, target, type fields |
+| T4.3 | Implement list view | All redirects listed |
+| T4.4 | Implement edit/delete | CRUD operations work |
+| T4.5 | Show hit count | Statistics visible |
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
+### Phase 5: Validation
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+| Task | Description | Acceptance |
+|------|-------------|------------|
+| T5.1 | Prevent redirect loops | Loop detection works |
+| T5.2 | Prevent self-redirect | Same URL blocked |
+| T5.3 | Warn on existing content | Warning shown |
+| T5.4 | Validate URL formats | Invalid URLs rejected |
+
+### Phase 6: Auto-Redirect on Slug Change
+
+| Task | Description | Acceptance |
+|------|-------------|------------|
+| T6.1 | Create PostObserver | Observer registered |
+| T6.2 | Detect slug changes | Changes detected |
+| T6.3 | Auto-create 301 redirect | Redirect created |
+| T6.4 | Mark as automatic | Source tracked |
+
+### Phase 7: Import/Export
+
+| Task | Description | Acceptance |
+|------|-------------|------------|
+| T7.1 | Implement CSV export | Download works |
+| T7.2 | Implement CSV import | Upload works |
+| T7.3 | Handle duplicates | Skipped with message |
+| T7.4 | Validate import data | Errors reported |
+
+### Phase 8: Testing
+
+| Task | Description | Acceptance |
+|------|-------------|------------|
+| T8.1 | Test 301 redirect | Correct status code |
+| T8.2 | Test 302 redirect | Correct status code |
+| T8.3 | Test query string preservation | Params preserved |
+| T8.4 | Test loop prevention | Loops blocked |
+| T8.5 | Test auto-redirect creation | Created on slug change |
+| T8.6 | Test hit counting | Count increments |
+| T8.7 | Test import/export | Round-trip works |
+| T8.8 | Test caching | Performance acceptable |
+
+## Dependencies
+
+### External Packages
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| filament/filament | ^4.0 | Admin panel |
+
+Uses Laravel built-in: Middleware, Cache, Observers.
+
+### Internal Dependencies
+
+- Post model from 001-blog-engine
+- Page model from 003-static-pages
+
+## Risk Assessment
+
+| Risk | Probability | Impact | Mitigation |
+|------|-------------|--------|------------|
+| Performance overhead | Medium | Medium | Aggressive caching |
+| Redirect loops | Low | High | Validation rules |
+| Cache staleness | Low | Medium | Event-based invalidation |
+
+## Artifacts
+
+- [research.md](research.md) - Middleware and caching strategies
+- [data-model.md](data-model.md) - Redirect schema and validation
+- [quickstart.md](quickstart.md) - Quick implementation guide
+- [contracts/routes.md](contracts/routes.md) - Route and middleware contracts
