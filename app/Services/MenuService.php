@@ -12,6 +12,14 @@ class MenuService
 {
     private const CACHE_TTL = 3600; // 1 hour
 
+    /**
+     * Static convenience method for use in Blade templates.
+     */
+    public static function getItemsForLocation(string $location): Collection
+    {
+        return (new self)->getMenuItems($location);
+    }
+
     public function getMenuItems(string $location): Collection
     {
         return Cache::remember(

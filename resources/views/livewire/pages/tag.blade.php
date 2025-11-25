@@ -59,7 +59,7 @@ class extends Component {
                         @if($post->categories->isNotEmpty())
                             <div class="flex flex-wrap gap-2 mb-2">
                                 @foreach($post->categories as $category)
-                                    <a href="{{ route('category.show', $category->slug) }}" wire:navigate class="text-xs font-medium text-accent hover:underline">
+                                    <a href="{{ route('categories.show', $category->slug) }}" wire:navigate class="text-xs font-medium text-accent hover:underline">
                                         {{ $category->name }}
                                     </a>
                                 @endforeach

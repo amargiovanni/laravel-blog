@@ -33,7 +33,7 @@ class extends Component {
         @if($post->categories->isNotEmpty())
             <div class="flex flex-wrap gap-2 mb-4">
                 @foreach($post->categories as $category)
-                    <a href="{{ route('category.show', $category->slug) }}" wire:navigate class="text-sm font-medium text-accent hover:underline">
+                    <a href="{{ route('categories.show', $category->slug) }}" wire:navigate class="text-sm font-medium text-accent hover:underline">
                         {{ $category->name }}
                     </a>
                 @endforeach
@@ -88,7 +88,7 @@ class extends Component {
             <div class="flex flex-wrap items-center gap-2">
                 <span class="text-sm text-zinc-500 dark:text-zinc-400">{{ __('Tags:') }}</span>
                 @foreach($post->tags as $tag)
-                    <a href="{{ route('tag.show', $tag->slug) }}" wire:navigate class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">
+                    <a href="{{ route('tags.show', $tag->slug) }}" wire:navigate class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">
                         {{ $tag->name }}
                     </a>
                 @endforeach

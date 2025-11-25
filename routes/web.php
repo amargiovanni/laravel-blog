@@ -23,8 +23,15 @@ Route::get('/llms.txt', function (LlmsTxtService $service) {
 Volt::route('/', 'pages.home')->name('home');
 Volt::route('/posts', 'pages.posts.index')->name('posts.index');
 Volt::route('/posts/{slug}', 'pages.posts.show')->name('posts.show');
-Volt::route('/category/{slug}', 'pages.category')->name('category.show');
-Volt::route('/tag/{slug}', 'pages.tag')->name('tag.show');
+Volt::route('/categories', 'pages.categories.index')->name('categories.index');
+Volt::route('/category/{slug}', 'pages.category')->name('categories.show');
+Volt::route('/tags', 'pages.tags.index')->name('tags.index');
+Volt::route('/tag/{slug}', 'pages.tag')->name('tags.show');
+Volt::route('/archives', 'pages.archives')->name('archives');
+Volt::route('/archives/{year}/{month?}', 'pages.archives-filter')->name('archives.filter');
+
+// Static pages - must be last to catch remaining slugs
+Volt::route('/{slug}', 'pages.page')->name('pages.show');
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])

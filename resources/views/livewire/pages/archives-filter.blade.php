@@ -1,24 +1,51 @@
 <?php
 
 use App\Models\Post;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
-use Livewire\Attributes\Title;
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
 
 new
 #[Layout('components.layouts.blog')]
-#[Title('Blog')]
 class extends Component {
     use WithPagination;
 
+    public int $year;
+    public ?int $month = null;
+
+    public function mount(int $year, ?string $month = null): void
+    {
+        $this->year = $year;
+        $this->month = $month ? (int) $month : null;
+    }
+
     public function with(): array
     {
+        $driver = DB::getDriverName();
+        $query = Post::published()
+            ->with(['author', 'categories', 'featuredImage']);
+
+        if ($driver === 'sqlite') {
+            $query->whereRaw("strftime('%Y', published_at) = ?", [(string) $this->year]);
+            if ($this->month) {
+                $query->whereRaw("strftime('%m', published_at) = ?", [str_pad((string) $this->month, 2, '0', STR_PAD_LEFT)]);
+            }
+        } else {
+            $query->whereYear('published_at', $this->year);
+            if ($this->month) {
+                $query->whereMonth('published_at', $this->month);
+            }
+        }
+
+        $title = $this->month
+            ? Carbon::create($this->year, $this->month)->format('F Y')
+            : (string) $this->year;
+
         return [
-            'posts' => Post::published()
-                ->with(['author', 'categories', 'featuredImage'])
-                ->latest('published_at')
-                ->paginate(config('blog.posts.per_page', 10)),
+            'posts' => $query->latest('published_at')->paginate(config('blog.posts.per_page', 10)),
+            'title' => $title,
         ];
     }
 }; ?>
@@ -26,20 +53,24 @@ class extends Component {
 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
     {{-- Header --}}
     <div class="mb-8">
-        <h1 class="text-3xl font-bold">{{ __('Blog') }}</h1>
-        <p class="mt-2 text-zinc-600 dark:text-zinc-400">{{ __('All posts') }}</p>
+        <a href="{{ route('archives') }}" wire:navigate class="text-sm text-accent hover:underline mb-2 inline-block">
+            &larr; {{ __('All Archives') }}
+        </a>
+        <h1 class="text-3xl font-bold">{{ $title }}</h1>
+        <p class="mt-2 text-zinc-600 dark:text-zinc-400">
+            {{ __('Posts from :date', ['date' => $title]) }}
+        </p>
     </div>
 
     {{-- Posts List --}}
     @if($posts->isEmpty())
         <div class="text-center py-12">
-            <p class="text-zinc-500 dark:text-zinc-400">{{ __('No posts found.') }}</p>
+            <p class="text-zinc-500 dark:text-zinc-400">{{ __('No posts found for this period.') }}</p>
         </div>
     @else
         <div class="space-y-8">
             @foreach($posts as $post)
                 <article class="flex flex-col md:flex-row gap-6 p-6 bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700">
-                    {{-- Featured Image --}}
                     @if($post->featuredImage)
                         <a href="{{ route('posts.show', $post->slug) }}" wire:navigate class="md:w-64 md:shrink-0">
                             <img
@@ -51,7 +82,6 @@ class extends Component {
                     @endif
 
                     <div class="flex-1">
-                        {{-- Categories --}}
                         @if($post->categories->isNotEmpty())
                             <div class="flex flex-wrap gap-2 mb-2">
                                 @foreach($post->categories as $category)
@@ -62,36 +92,28 @@ class extends Component {
                             </div>
                         @endif
 
-                        {{-- Title --}}
                         <h2 class="text-xl font-semibold mb-2">
                             <a href="{{ route('posts.show', $post->slug) }}" wire:navigate class="hover:text-accent transition-colors">
                                 {{ $post->title }}
                             </a>
                         </h2>
 
-                        {{-- Excerpt --}}
                         <p class="text-zinc-600 dark:text-zinc-400 text-sm mb-4 line-clamp-2">
                             {{ $post->excerpt }}
                         </p>
 
-                        {{-- Meta --}}
                         <div class="flex items-center gap-4 text-sm text-zinc-500 dark:text-zinc-400">
                             <span>{{ $post->author->name }}</span>
                             <span>&middot;</span>
                             <time datetime="{{ $post->published_at->toIso8601String() }}">
                                 {{ $post->published_at->format('M j, Y') }}
                             </time>
-                            @if($post->view_count > 0)
-                                <span>&middot;</span>
-                                <span>{{ number_format($post->view_count) }} {{ __('views') }}</span>
-                            @endif
                         </div>
                     </div>
                 </article>
             @endforeach
         </div>
 
-        {{-- Pagination --}}
         <div class="mt-8">
             {{ $posts->links() }}
         </div>
