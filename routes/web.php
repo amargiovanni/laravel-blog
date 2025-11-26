@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\SitemapController;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
@@ -18,6 +19,10 @@ Route::get('/llms.txt', function (LlmsTxtService $service) {
         'Content-Type' => 'text/markdown; charset=UTF-8',
     ]);
 })->name('llms.txt');
+
+// Sitemap and robots.txt
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
 
 // Blog routes
 Volt::route('/', 'pages.home')->name('home');
