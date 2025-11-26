@@ -43,6 +43,7 @@ class Post extends Model implements Feedable
         'focus_keyword',
         'allow_comments',
         'view_count',
+        'comments_count',
     ];
 
     public static function generateUniqueSlug(string $title, ?int $excludeId = null): string
@@ -166,6 +167,48 @@ class Post extends Model implements Feedable
     public function isScheduled(): bool
     {
         return $this->status === 'scheduled' && $this->published_at > now();
+    }
+
+    /**
+     * Check if comments are enabled for this post.
+     */
+    public function commentsAreEnabled(): bool
+    {
+        // Check global setting first
+        if (! config('comments.enabled', true)) {
+            return false;
+        }
+
+        // Check per-post setting
+        if (! $this->allow_comments) {
+            return false;
+        }
+
+        // Check auto-close
+        $autoCloseDays = config('comments.auto_close_days');
+        if ($autoCloseDays && $this->published_at) {
+            if ($this->published_at->diffInDays(now()) > $autoCloseDays) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @return HasMany<Comment, $this>
+     */
+    public function approvedComments(): HasMany
+    {
+        return $this->comments()->approved()->rootLevel();
+    }
+
+    /**
+     * @return HasMany<Comment, $this>
+     */
+    public function pendingComments(): HasMany
+    {
+        return $this->comments()->pending();
     }
 
     public function getExcerptAttribute(?string $value): string
