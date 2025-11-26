@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\FeedController;
 use App\Http\Controllers\SitemapController;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
@@ -23,6 +24,12 @@ Route::get('/llms.txt', function (LlmsTxtService $service) {
 // Sitemap and robots.txt
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
+
+// RSS Feeds
+Route::feeds();
+Route::get('/category/{slug}/feed', [FeedController::class, 'category'])->name('categories.show.feed');
+Route::get('/tag/{slug}/feed', [FeedController::class, 'tag'])->name('tags.show.feed');
+Route::get('/author/{id}/feed', [FeedController::class, 'author'])->name('authors.feed');
 
 // Blog routes
 Volt::route('/', 'pages.home')->name('home');

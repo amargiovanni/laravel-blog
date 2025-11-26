@@ -15,11 +15,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
+use Spatie\Feed\Feedable;
+use Spatie\Feed\FeedItem;
 
 #[ObservedBy([PostObserver::class])]
-class Post extends Model
+class Post extends Model implements Feedable
 {
     use HasFactory, HasRevisions, LogsActivityAllDirty, Searchable, SoftDeletes;
 
@@ -64,6 +67,21 @@ class Post extends Model
         }
 
         return $slug;
+    }
+
+    /**
+     * Get all feed items for the RSS feed.
+     *
+     * @return Collection<int, Post>
+     */
+    public static function getFeedItems(): Collection
+    {
+        return static::query()
+            ->published()
+            ->with(['author', 'categories', 'tags', 'featuredImage'])
+            ->latest('published_at')
+            ->take(20)
+            ->get();
     }
 
     /**
@@ -181,6 +199,40 @@ class Post extends Model
     public function shouldBeSearchable(): bool
     {
         return $this->isPublished();
+    }
+
+    /**
+     * Convert the model to a feed item.
+     */
+    public function toFeedItem(): FeedItem
+    {
+        $categories = $this->categories->pluck('name')
+            ->merge($this->tags->pluck('name'))
+            ->toArray();
+
+        $summary = $this->getRawOriginal('excerpt')
+            ?: Str::limit(strip_tags($this->content ?? ''), 300);
+
+        $feedItem = FeedItem::create()
+            ->id((string) $this->id)
+            ->title($this->title)
+            ->summary($summary)
+            ->updated($this->published_at ?? $this->created_at)
+            ->link(route('posts.show', $this->slug))
+            ->authorName($this->author?->name ?? config('app.name'))
+            ->authorEmail($this->author?->email ?? '');
+
+        if (count($categories) > 0) {
+            $feedItem->category(...$categories);
+        }
+
+        if ($this->featuredImage?->url) {
+            $feedItem->enclosure($this->featuredImage->url)
+                ->enclosureType($this->featuredImage->mime_type ?? 'image/jpeg')
+                ->enclosureLength($this->featuredImage->size ?? 0);
+        }
+
+        return $feedItem;
     }
 
     protected static function booted(): void
