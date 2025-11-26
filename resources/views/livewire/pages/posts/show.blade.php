@@ -119,4 +119,20 @@ class extends Component {
 
     {{-- Related Posts --}}
     <x-related-posts :post="$post" />
+
+    {{-- Comments Section --}}
+    @if($post->commentsAreEnabled())
+        <section class="mt-12 pt-8 border-t border-zinc-200 dark:border-zinc-700">
+            <h2 class="text-2xl font-bold mb-8">{{ __('Comments') }} ({{ $post->comments_count }})</h2>
+
+            {{-- Comment List --}}
+            <livewire:comment-list :post="$post" />
+
+            {{-- Comment Form --}}
+            <div class="mt-8">
+                <h3 class="text-lg font-semibold mb-4">{{ __('Leave a Comment') }}</h3>
+                <livewire:comment-form :post="$post" />
+            </div>
+        </section>
+    @endif
 </article>
