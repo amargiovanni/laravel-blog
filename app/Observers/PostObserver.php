@@ -5,10 +5,15 @@ declare(strict_types=1);
 namespace App\Observers;
 
 use App\Models\Post;
+use App\Services\RelatedPostsService;
 use Illuminate\Support\Facades\Cache;
 
 class PostObserver
 {
+    public function __construct(
+        protected RelatedPostsService $relatedPostsService,
+    ) {}
+
     /**
      * Handle the Post "created" event.
      */
@@ -18,6 +23,9 @@ class PostObserver
         if ($post->status === 'published') {
             $this->clearLlmsTxtCache();
         }
+
+        // Clear related posts cache for posts that might be related
+        $this->clearRelatedPostsCache($post);
 
         activity()
             ->performedOn($post)
@@ -55,6 +63,9 @@ class PostObserver
         if ($post->isPublished() || isset($changes['status']) || isset($changes['title'])) {
             $this->clearLlmsTxtCache();
         }
+
+        // Clear related posts cache when post is updated
+        $this->clearRelatedPostsCache($post);
 
         activity()
             ->performedOn($post)
@@ -115,5 +126,43 @@ class PostObserver
     protected function clearLlmsTxtCache(): void
     {
         Cache::forget('llms.txt');
+    }
+
+    /**
+     * Clear related posts cache for a post and any posts that might be related.
+     */
+    protected function clearRelatedPostsCache(Post $post): void
+    {
+        // Clear cache for this post
+        $this->relatedPostsService->clearCache($post);
+
+        // Get posts that share tags or categories with this post
+        // and clear their related posts cache too
+        $relatedPostIds = collect();
+
+        if ($post->tags->isNotEmpty()) {
+            $tagIds = $post->tags->pluck('id');
+            $relatedPostIds = $relatedPostIds->merge(
+                Post::whereHas('tags', fn ($q) => $q->whereIn('tags.id', $tagIds))
+                    ->where('id', '!=', $post->id)
+                    ->pluck('id')
+            );
+        }
+
+        if ($post->categories->isNotEmpty()) {
+            $categoryIds = $post->categories->pluck('id');
+            $relatedPostIds = $relatedPostIds->merge(
+                Post::whereHas('categories', fn ($q) => $q->whereIn('categories.id', $categoryIds))
+                    ->where('id', '!=', $post->id)
+                    ->pluck('id')
+            );
+        }
+
+        // Clear cache for related posts
+        $relatedPostIds->unique()->each(function ($postId) {
+            foreach ([3, 4, 5, 6] as $limit) {
+                Cache::forget("related_posts:{$postId}:{$limit}");
+            }
+        });
     }
 }

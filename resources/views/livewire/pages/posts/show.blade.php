@@ -116,4 +116,7 @@ class extends Component {
             </div>
         </div>
     @endif
+
+    {{-- Related Posts --}}
+    <x-related-posts :post="$post" />
 </article>
