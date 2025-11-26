@@ -63,6 +63,7 @@ class UserResource extends Resource
                             ->avatar()
                             ->disk('public')
                             ->directory('avatars')
+                            ->visibility('public')
                             ->imageEditor(),
                         Forms\Components\Textarea::make('bio')
                             ->rows(3)

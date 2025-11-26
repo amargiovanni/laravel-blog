@@ -48,8 +48,8 @@ class extends Component {
         {{-- Meta --}}
         <div class="flex flex-wrap items-center gap-4 text-zinc-500 dark:text-zinc-400">
             <div class="flex items-center gap-2">
-                @if($post->author->avatar)
-                    <img src="{{ $post->author->avatar }}" alt="{{ $post->author->name }}" class="size-8 rounded-full" />
+                @if($post->author->avatar_url)
+                    <img src="{{ $post->author->avatar_url }}" alt="{{ $post->author->name }}" class="size-8 rounded-full object-cover" />
                 @else
                     <div class="size-8 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center">
                         <span class="text-sm font-medium">{{ substr($post->author->name, 0, 1) }}</span>
@@ -100,8 +100,8 @@ class extends Component {
     @if($post->author->bio)
         <div class="mt-12 p-6 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg">
             <div class="flex items-start gap-4">
-                @if($post->author->avatar)
-                    <img src="{{ $post->author->avatar }}" alt="{{ $post->author->name }}" class="size-16 rounded-full" />
+                @if($post->author->avatar_url)
+                    <img src="{{ $post->author->avatar_url }}" alt="{{ $post->author->name }}" class="size-16 rounded-full object-cover" />
                 @else
                     <div class="size-16 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center">
                         <span class="text-xl font-medium">{{ substr($post->author->name, 0, 1) }}</span>

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Livewire;
 
-use App\Models\Comment;
 use App\Models\Post;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Collection;
@@ -17,30 +16,15 @@ class CommentList extends Component
 
     public ?int $replyingTo = null;
 
-    /**
-     * @var Collection<int, Comment>
-     */
-    public Collection $comments;
-
     public function mount(Post $post): void
     {
         $this->post = $post;
-        $this->loadComments();
     }
 
     #[On('comment-submitted')]
-    public function loadComments(): void
+    public function refresh(): void
     {
-        $maxDepth = config('comments.max_depth', 3);
-
-        $this->comments = $this->post
-            ->approvedComments()
-            ->with(['approvedReplies' => function ($query) use ($maxDepth): void {
-                // Load nested replies recursively
-                $this->loadNestedReplies($query, $maxDepth - 1);
-            }])
-            ->orderBy('created_at', 'asc')
-            ->get();
+        // This method triggers a re-render which will reload comments
     }
 
     public function startReply(int $commentId): void
@@ -55,7 +39,27 @@ class CommentList extends Component
 
     public function render(): View
     {
-        return view('livewire.comment-list');
+        return view('livewire.comment-list', [
+            'comments' => $this->getComments(),
+        ]);
+    }
+
+    /**
+     * Get comments with all nested replies loaded.
+     *
+     * @return Collection<int, \App\Models\Comment>
+     */
+    protected function getComments(): Collection
+    {
+        $maxDepth = config('comments.max_depth', 3);
+
+        return $this->post
+            ->approvedComments()
+            ->with(['approvedReplies' => function ($query) use ($maxDepth): void {
+                $this->loadNestedReplies($query, $maxDepth - 1);
+            }])
+            ->orderBy('created_at', 'asc')
+            ->get();
     }
 
     /**
@@ -66,6 +70,9 @@ class CommentList extends Component
     protected function loadNestedReplies($query, int $remainingDepth): void
     {
         if ($remainingDepth <= 0) {
+            // Load empty relation to prevent lazy loading violation
+            $query->with(['approvedReplies' => fn ($q) => $q->whereRaw('1 = 0')]);
+
             return;
         }
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Post;
+use App\Models\Setting;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Volt\Component;
@@ -17,6 +18,8 @@ class extends Component {
                 ->latest('published_at')
                 ->take(config('blog.posts.per_page', 10))
                 ->get(),
+            'siteTitle' => Setting::get('theme.site_title') ?: config('blog.name', config('app.name')),
+            'siteSubtitle' => Setting::get('theme.site_subtitle') ?: config('blog.description'),
         ];
     }
 }; ?>
@@ -25,11 +28,13 @@ class extends Component {
     {{-- Hero Section --}}
     <div class="text-center mb-12">
         <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
-            {{ config('blog.name', config('app.name')) }}
+            {{ $siteTitle }}
         </h1>
-        <p class="mt-4 text-lg text-zinc-600 dark:text-zinc-400">
-            {{ config('blog.description') }}
-        </p>
+        @if($siteSubtitle)
+            <p class="mt-4 text-lg text-zinc-600 dark:text-zinc-400">
+                {{ $siteSubtitle }}
+            </p>
+        @endif
     </div>
 
     {{-- Posts Grid --}}

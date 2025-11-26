@@ -45,10 +45,10 @@ class TagsWidget extends BaseWidget
 
         $tags = Tag::query()
             ->withCount('posts')
-            ->having('posts_count', '>', 0)
-            ->orderByDesc('posts_count')
-            ->limit($maxTags)
-            ->get();
+            ->get()
+            ->filter(fn ($tag) => $tag->posts_count > 0)
+            ->sortByDesc('posts_count')
+            ->take($maxTags);
 
         // Calculate tag sizes based on post count
         $maxCount = $tags->max('posts_count') ?: 1;
@@ -57,7 +57,7 @@ class TagsWidget extends BaseWidget
         $tags = $tags->map(function ($tag) use ($maxCount, $minCount) {
             $range = max(1, $maxCount - $minCount);
             $ratio = ($tag->posts_count - $minCount) / $range;
-            $tag->size = round(0.75 + ($ratio * 1.25), 2); // Size from 0.75rem to 2rem
+            $tag->size = round(0.75 + ($ratio * 0.5), 2); // Size from 0.75rem to 1.25rem
 
             return $tag;
         })->shuffle(); // Randomize order for cloud effect

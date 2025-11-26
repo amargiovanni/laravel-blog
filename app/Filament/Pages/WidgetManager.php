@@ -22,6 +22,8 @@ class WidgetManager extends Page implements HasForms
 
     public ?string $editingWidgetId = null;
 
+    public int $refreshKey = 0;
+
     protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
 
     protected static ?string $navigationGroup = 'Appearance';
@@ -70,7 +72,7 @@ class WidgetManager extends Page implements HasForms
             ->success()
             ->send();
 
-        $this->dispatch('$refresh');
+        $this->refreshKey++;
     }
 
     public function editWidget(int $widgetId): void
@@ -114,8 +116,6 @@ class WidgetManager extends Page implements HasForms
             ->title('Widget saved')
             ->success()
             ->send();
-
-        $this->dispatch('$refresh');
     }
 
     public function cancelEdit(): void
@@ -133,7 +133,7 @@ class WidgetManager extends Page implements HasForms
             ->success()
             ->send();
 
-        $this->dispatch('$refresh');
+        $this->refreshKey++;
     }
 
     public function reorderWidgets(string $area, array $orderedIds): void
@@ -143,6 +143,8 @@ class WidgetManager extends Page implements HasForms
         }
 
         WidgetInstance::clearWidgetCache();
+
+        $this->refreshKey++;
     }
 
     public function moveWidget(int $widgetId, string $newArea): void
@@ -165,7 +167,7 @@ class WidgetManager extends Page implements HasForms
             ->success()
             ->send();
 
-        $this->dispatch('$refresh');
+        $this->refreshKey++;
     }
 
     public function form(Form $form): Form

@@ -1,5 +1,8 @@
 <x-filament-panels::page>
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <div
+        x-data="widgetManager()"
+        class="grid grid-cols-1 lg:grid-cols-4 gap-6"
+    >
         {{-- Available Widgets Panel --}}
         <div class="lg:col-span-1">
             <div class="fi-section rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
@@ -63,7 +66,7 @@
 
         {{-- Widget Areas --}}
         <div class="lg:col-span-3">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 @foreach($this->getWidgetAreas() as $areaKey => $area)
                     <div class="fi-section rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
                         <div class="fi-section-header p-6 pb-4">
@@ -77,17 +80,23 @@
                         <div class="fi-section-content p-6 pt-0">
                             @php $widgets = $this->getWidgetsForArea($areaKey); @endphp
 
-                            @if($widgets->isEmpty())
-                                <div class="text-center py-8 text-gray-500 dark:text-gray-400 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg">
-                                    <x-heroicon-o-squares-2x2 class="w-8 h-8 mx-auto mb-2 opacity-50" />
-                                    <p class="text-sm">No widgets yet</p>
-                                </div>
-                            @else
-                                <div class="space-y-2">
+                            <div
+                                class="widget-sortable-area min-h-[80px] space-y-2 {{ $widgets->isEmpty() ? 'border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg' : '' }}"
+                                data-area="{{ $areaKey }}"
+                            >
+                                @if($widgets->isEmpty())
+                                    <div class="empty-placeholder text-center py-8 text-gray-500 dark:text-gray-400">
+                                        <x-heroicon-o-squares-2x2 class="w-8 h-8 mx-auto mb-2 opacity-50" />
+                                        <p class="text-sm">Drop widgets here</p>
+                                    </div>
+                                @else
                                     @foreach($widgets as $widget)
-                                        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg group">
+                                        <div
+                                            class="widget-item flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 cursor-move"
+                                            data-widget-id="{{ $widget->id }}"
+                                        >
                                             <div class="flex items-center gap-3">
-                                                <x-heroicon-o-bars-2 class="w-4 h-4 text-gray-400 cursor-move" />
+                                                <x-heroicon-o-bars-2 class="w-4 h-4 text-gray-400 drag-handle" />
                                                 <div>
                                                     <div class="font-medium text-gray-900 dark:text-white text-sm">
                                                         {{ $widget->getDisplayTitle() }}
@@ -97,29 +106,29 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
+                                            <div class="flex items-center gap-1">
                                                 <button
                                                     wire:click="editWidget({{ $widget->id }})"
                                                     type="button"
-                                                    class="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+                                                    class="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
                                                     title="Edit"
                                                 >
-                                                    <x-heroicon-m-pencil class="w-4 h-4 text-gray-500" />
+                                                    <x-heroicon-m-pencil class="w-4 h-4" />
                                                 </button>
                                                 <button
                                                     wire:click="deleteWidget({{ $widget->id }})"
-                                                    wire:confirm="Are you sure you want to delete this widget?"
+                                                    wire:confirm="Are you sure you want to remove this widget?"
                                                     type="button"
-                                                    class="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-                                                    title="Delete"
+                                                    class="p-1.5 hover:bg-red-100 dark:hover:bg-red-900/30 rounded text-red-500 hover:text-red-700"
+                                                    title="Remove"
                                                 >
-                                                    <x-heroicon-m-trash class="w-4 h-4 text-red-500" />
+                                                    <x-heroicon-m-x-mark class="w-4 h-4" />
                                                 </button>
                                             </div>
                                         </div>
                                     @endforeach
-                                </div>
-                            @endif
+                                @endif
+                            </div>
                         </div>
                     </div>
                 @endforeach
@@ -185,14 +194,17 @@
                                                 @endforeach
                                             </select>
                                         @elseif($field['type'] === 'toggle')
-                                            <label class="relative inline-flex items-center cursor-pointer">
-                                                <input
-                                                    type="checkbox"
-                                                    wire:model="widgetData.{{ $field['name'] }}"
-                                                    class="sr-only peer"
-                                                >
-                                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"></div>
-                                            </label>
+                                            <button
+                                                type="button"
+                                                wire:click="$set('widgetData.{{ $field['name'] }}', !$wire.widgetData['{{ $field['name'] }}'])"
+                                                class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 {{ ($widgetData[$field['name']] ?? false) ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700' }}"
+                                                role="switch"
+                                                aria-checked="{{ ($widgetData[$field['name']] ?? false) ? 'true' : 'false' }}"
+                                            >
+                                                <span
+                                                    class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out {{ ($widgetData[$field['name']] ?? false) ? 'translate-x-5' : 'translate-x-0' }}"
+                                                ></span>
+                                            </button>
                                         @endif
                                     </div>
                                 @endforeach
@@ -219,4 +231,90 @@
             </div>
         </div>
     @endif
+
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script>
+        function widgetManager() {
+            return {
+                sortables: [],
+
+                init() {
+                    // Wait for Sortable to load
+                    const checkSortable = setInterval(() => {
+                        if (typeof Sortable !== 'undefined') {
+                            clearInterval(checkSortable);
+                            this.initSortable();
+                        }
+                    }, 100);
+                },
+
+                initSortable() {
+                    const areas = document.querySelectorAll('.widget-sortable-area');
+                    const component = this;
+
+                    areas.forEach(area => {
+                        const sortable = new Sortable(area, {
+                            group: 'widgets',
+                            animation: 150,
+                            draggable: '.widget-item',
+                            ghostClass: 'opacity-50',
+                            chosenClass: 'ring-2',
+                            dragClass: 'shadow-lg',
+                            onStart: (evt) => {
+                                // Hide empty placeholders
+                                document.querySelectorAll('.empty-placeholder').forEach(el => {
+                                    el.style.display = 'none';
+                                });
+                                // Add drop zone visual
+                                document.querySelectorAll('.widget-sortable-area').forEach(el => {
+                                    el.style.border = '2px dashed #8b5cf6';
+                                    el.style.borderRadius = '8px';
+                                });
+                            },
+                            onEnd: (evt) => {
+                                // Remove drop zone visual
+                                document.querySelectorAll('.widget-sortable-area').forEach(el => {
+                                    el.style.border = '';
+                                    el.style.borderRadius = '';
+                                });
+                                // Show empty placeholders again
+                                document.querySelectorAll('.empty-placeholder').forEach(el => {
+                                    el.style.display = '';
+                                });
+
+                                const widgetId = evt.item.dataset.widgetId;
+                                const newArea = evt.to.dataset.area;
+                                const oldArea = evt.from.dataset.area;
+
+                                // Get all widget IDs in the new area
+                                const orderedIds = Array.from(evt.to.querySelectorAll('.widget-item'))
+                                    .map(el => parseInt(el.dataset.widgetId));
+
+                                if (oldArea !== newArea) {
+                                    // Widget moved to a different area
+                                    @this.call('moveWidget', parseInt(widgetId), newArea);
+                                }
+
+                                // Reorder widgets in the target area
+                                @this.call('reorderWidgets', newArea, orderedIds);
+
+                                // If moved from another area, also reorder the source
+                                if (oldArea !== newArea) {
+                                    const sourceOrderedIds = Array.from(evt.from.querySelectorAll('.widget-item'))
+                                        .map(el => parseInt(el.dataset.widgetId));
+                                    if (sourceOrderedIds.length > 0) {
+                                        @this.call('reorderWidgets', oldArea, sourceOrderedIds);
+                                    }
+                                }
+                            }
+                        });
+
+                        this.sortables.push(sortable);
+                    });
+
+                    console.log('SortableJS initialized for', areas.length, 'areas');
+                }
+            }
+        }
+    </script>
 </x-filament-panels::page>

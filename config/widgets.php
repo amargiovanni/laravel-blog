@@ -13,10 +13,6 @@ return [
     |
     */
     'areas' => [
-        'primary_sidebar' => [
-            'name' => 'Primary Sidebar',
-            'description' => 'Main sidebar area on blog pages',
-        ],
         'footer_1' => [
             'name' => 'Footer Column 1',
             'description' => 'First column in the footer',

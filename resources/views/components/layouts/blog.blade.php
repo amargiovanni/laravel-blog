@@ -60,67 +60,69 @@
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="flex h-16 items-center justify-between">
                     {{-- Logo --}}
-                    <a href="{{ url('/') }}" class="flex items-center space-x-2" wire:navigate>
-                        <x-app-logo class="h-8 w-auto" />
-                        <span class="text-xl font-semibold">{{ config('blog.name', config('app.name')) }}</span>
+                    @php
+                        $headerTitle = \App\Models\Setting::get('theme.site_title') ?: config('blog.name', config('app.name'));
+                    @endphp
+                    <a href="{{ url('/') }}" class="text-xl font-semibold hover:text-accent transition-colors" wire:navigate>
+                        {{ $headerTitle }}
                     </a>
 
-                    {{-- Main Navigation from Menu Builder --}}
-                    <nav class="hidden md:flex items-center space-x-6">
-                        @php
-                            $headerMenu = \App\Services\MenuService::getItemsForLocation('header');
-                        @endphp
-                        @if($headerMenu->isNotEmpty())
-                            @foreach($headerMenu as $item)
-                                <div class="relative group">
-                                    <a
-                                        href="{{ $item->getUrl() }}"
-                                        target="{{ $item->target }}"
-                                        @if($item->title_attribute) title="{{ $item->title_attribute }}" @endif
-                                        class="text-sm font-medium hover:text-accent transition-colors {{ $item->css_class ?? '' }}"
-                                        @if($item->target === '_self') wire:navigate @endif
-                                    >
-                                        {{ $item->getDisplayLabel() }}
+                    {{-- Right side: Navigation + Actions --}}
+                    <div class="flex items-center space-x-6">
+                        {{-- Main Navigation from Menu Builder --}}
+                        <nav class="hidden md:flex items-center space-x-6">
+                            @php
+                                $headerMenu = \App\Services\MenuService::getItemsForLocation('header');
+                            @endphp
+                            @if($headerMenu->isNotEmpty())
+                                @foreach($headerMenu as $item)
+                                    <div class="relative group">
+                                        <a
+                                            href="{{ $item->getUrl() }}"
+                                            target="{{ $item->target }}"
+                                            @if($item->title_attribute) title="{{ $item->title_attribute }}" @endif
+                                            class="text-sm font-medium hover:text-accent transition-colors {{ $item->css_class ?? '' }}"
+                                            @if($item->target === '_self') wire:navigate @endif
+                                        >
+                                            {{ $item->getDisplayLabel() }}
+                                            @if($item->children->isNotEmpty())
+                                                <svg class="inline-block w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                                </svg>
+                                            @endif
+                                        </a>
                                         @if($item->children->isNotEmpty())
-                                            <svg class="inline-block w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                            </svg>
-                                        @endif
-                                    </a>
-                                    @if($item->children->isNotEmpty())
-                                        <div class="absolute left-0 mt-2 w-48 bg-white dark:bg-zinc-800 rounded-md shadow-lg border border-zinc-200 dark:border-zinc-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                                            <div class="py-1">
-                                                @foreach($item->children as $child)
-                                                    <a
-                                                        href="{{ $child->getUrl() }}"
-                                                        target="{{ $child->target }}"
-                                                        class="block px-4 py-2 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-700 {{ $child->css_class ?? '' }}"
-                                                        @if($child->target === '_self') wire:navigate @endif
-                                                    >
-                                                        {{ $child->getDisplayLabel() }}
-                                                    </a>
-                                                @endforeach
+                                            <div class="absolute right-0 mt-2 w-48 bg-white dark:bg-zinc-800 rounded-md shadow-lg border border-zinc-200 dark:border-zinc-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                                                <div class="py-1">
+                                                    @foreach($item->children as $child)
+                                                        <a
+                                                            href="{{ $child->getUrl() }}"
+                                                            target="{{ $child->target }}"
+                                                            class="block px-4 py-2 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-700 {{ $child->css_class ?? '' }}"
+                                                            @if($child->target === '_self') wire:navigate @endif
+                                                        >
+                                                            {{ $child->getDisplayLabel() }}
+                                                        </a>
+                                                    @endforeach
+                                                </div>
                                             </div>
-                                        </div>
-                                    @endif
-                                </div>
-                            @endforeach
-                        @else
-                            {{-- Fallback navigation if no menu configured --}}
-                            <a href="{{ url('/') }}" class="text-sm font-medium hover:text-accent transition-colors" wire:navigate>
-                                {{ __('Home') }}
-                            </a>
-                            <a href="{{ route('posts.index') }}" class="text-sm font-medium hover:text-accent transition-colors" wire:navigate>
-                                {{ __('Blog') }}
-                            </a>
-                            <a href="{{ route('categories.index') }}" class="text-sm font-medium hover:text-accent transition-colors" wire:navigate>
-                                {{ __('Categories') }}
-                            </a>
-                        @endif
-                    </nav>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            @else
+                                {{-- Fallback navigation if no menu configured --}}
+                                <a href="{{ url('/') }}" class="text-sm font-medium hover:text-accent transition-colors" wire:navigate>
+                                    {{ __('Home') }}
+                                </a>
+                                <a href="{{ route('posts.index') }}" class="text-sm font-medium hover:text-accent transition-colors" wire:navigate>
+                                    {{ __('Blog') }}
+                                </a>
+                                <a href="{{ route('categories.index') }}" class="text-sm font-medium hover:text-accent transition-colors" wire:navigate>
+                                    {{ __('Categories') }}
+                                </a>
+                            @endif
+                        </nav>
 
-                    {{-- Right side --}}
-                    <div class="flex items-center space-x-4">
                         {{-- Search --}}
                         <a href="{{ route('search') }}" class="text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200" wire:navigate>
                             <flux:icon.magnifying-glass class="size-5" />
@@ -134,17 +136,6 @@
                             <flux:icon.sun x-show="isDark" class="size-5" />
                             <flux:icon.moon x-show="!isDark" x-cloak class="size-5" />
                         </button>
-
-                        {{-- Auth --}}
-                        @auth
-                            <a href="{{ route('dashboard') }}" class="text-sm font-medium hover:text-accent transition-colors" wire:navigate>
-                                {{ __('Dashboard') }}
-                            </a>
-                        @else
-                            <a href="{{ route('login') }}" class="text-sm font-medium hover:text-accent transition-colors" wire:navigate>
-                                {{ __('Sign in') }}
-                            </a>
-                        @endauth
 
                         {{-- Mobile menu button --}}
                         <button
@@ -204,71 +195,130 @@
         </div>
 
         {{-- Main Content --}}
+        @php
+            $sidebarWidgets = \App\Models\WidgetInstance::forArea('primary_sidebar')->get();
+            // Show sidebar on blog listing pages if widgets exist
+            $sidebarPaths = ['/posts', '/categories/', '/tags/', '/archives'];
+            $currentPath = request()->path();
+            $isListingPage = collect($sidebarPaths)->contains(fn($path) => $currentPath === ltrim($path, '/') || str_starts_with('/' . $currentPath, $path));
+            $showSidebarAuto = $sidebarWidgets->isNotEmpty() && ($showSidebar || $isListingPage);
+        @endphp
+
         <main class="flex-grow">
-            {{ $slot }}
+            @if($showSidebarAuto)
+                <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        {{-- Main Content Area --}}
+                        <div class="lg:col-span-8">
+                            {{ $slot }}
+                        </div>
+
+                        {{-- Primary Sidebar --}}
+                        <aside class="lg:col-span-4">
+                            <div class="sticky top-24 space-y-6">
+                                <x-widget-area area="primary_sidebar" />
+                            </div>
+                        </aside>
+                    </div>
+                </div>
+            @else
+                {{ $slot }}
+            @endif
         </main>
 
         {{-- Footer --}}
         <footer class="border-t border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                    {{-- About --}}
-                    <div class="md:col-span-2">
-                        <h3 class="text-sm font-semibold uppercase tracking-wider">{{ config('blog.name', config('app.name')) }}</h3>
-                        <p class="mt-4 text-sm text-zinc-600 dark:text-zinc-400">
-                            {{ config('blog.description') }}
-                        </p>
-                    </div>
+                @php
+                    $footer1Widgets = \App\Models\WidgetInstance::forArea('footer_1')->get();
+                    $footer2Widgets = \App\Models\WidgetInstance::forArea('footer_2')->get();
+                    $footer3Widgets = \App\Models\WidgetInstance::forArea('footer_3')->get();
+                    $hasAnyWidgets = $footer1Widgets->isNotEmpty() || $footer2Widgets->isNotEmpty() || $footer3Widgets->isNotEmpty();
+                @endphp
 
-                    {{-- Footer Navigation --}}
-                    <div>
-                        <h3 class="text-sm font-semibold uppercase tracking-wider">{{ __('Navigation') }}</h3>
-                        @php
-                            $footerMenu = \App\Services\MenuService::getItemsForLocation('footer');
-                        @endphp
-                        <ul class="mt-4 space-y-2">
-                            @if($footerMenu->isNotEmpty())
-                                @foreach($footerMenu as $item)
+                @if($hasAnyWidgets)
+                    {{-- Widget-based Footer --}}
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {{-- Footer Column 1 --}}
+                        <div class="footer-column">
+                            <x-widget-area area="footer_1" />
+                        </div>
+
+                        {{-- Footer Column 2 --}}
+                        <div class="footer-column">
+                            <x-widget-area area="footer_2" />
+                        </div>
+
+                        {{-- Footer Column 3 --}}
+                        <div class="footer-column">
+                            <x-widget-area area="footer_3" />
+                        </div>
+                    </div>
+                @else
+                    {{-- Default Footer (fallback when no widgets configured) --}}
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                        {{-- About --}}
+                        <div class="md:col-span-2">
+                            <h3 class="text-sm font-semibold uppercase tracking-wider">{{ config('blog.name', config('app.name')) }}</h3>
+                            <p class="mt-4 text-sm text-zinc-600 dark:text-zinc-400">
+                                {{ config('blog.description') }}
+                            </p>
+                        </div>
+
+                        {{-- Footer Navigation --}}
+                        <div>
+                            <h3 class="text-sm font-semibold uppercase tracking-wider">{{ __('Navigation') }}</h3>
+                            @php
+                                $footerMenu = \App\Services\MenuService::getItemsForLocation('footer');
+                            @endphp
+                            <ul class="mt-4 space-y-2">
+                                @if($footerMenu->isNotEmpty())
+                                    @foreach($footerMenu as $item)
+                                        <li>
+                                            <a href="{{ $item->getUrl() }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-accent" wire:navigate>
+                                                {{ $item->getDisplayLabel() }}
+                                            </a>
+                                        </li>
+                                    @endforeach
+                                @else
+                                    <li><a href="{{ url('/') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-accent" wire:navigate>{{ __('Home') }}</a></li>
+                                    <li><a href="{{ route('posts.index') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-accent" wire:navigate>{{ __('Blog') }}</a></li>
+                                    <li><a href="{{ route('archives') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-accent" wire:navigate>{{ __('Archives') }}</a></li>
+                                    <li><a href="{{ url('/feed') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-accent">{{ __('RSS Feed') }}</a></li>
+                                @endif
+                            </ul>
+                        </div>
+
+                        {{-- Categories --}}
+                        <div>
+                            <h3 class="text-sm font-semibold uppercase tracking-wider">{{ __('Categories') }}</h3>
+                            @php
+                                $footerCategories = \App\Models\Category::withCount(['posts' => fn ($q) => $q->published()])
+                                    ->orderBy('name')
+                                    ->get()
+                                    ->filter(fn ($cat) => $cat->posts_count > 0)
+                                    ->take(6);
+                            @endphp
+                            <ul class="mt-4 space-y-2">
+                                @foreach($footerCategories as $category)
                                     <li>
-                                        <a href="{{ $item->getUrl() }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-accent" wire:navigate>
-                                            {{ $item->getDisplayLabel() }}
+                                        <a href="{{ route('categories.show', $category->slug) }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-accent" wire:navigate>
+                                            {{ $category->name }}
                                         </a>
                                     </li>
                                 @endforeach
-                            @else
-                                <li><a href="{{ url('/') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-accent" wire:navigate>{{ __('Home') }}</a></li>
-                                <li><a href="{{ route('posts.index') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-accent" wire:navigate>{{ __('Blog') }}</a></li>
-                                <li><a href="{{ route('archives') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-accent" wire:navigate>{{ __('Archives') }}</a></li>
-                                <li><a href="{{ url('/feed') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-accent">{{ __('RSS Feed') }}</a></li>
-                            @endif
-                        </ul>
+                            </ul>
+                        </div>
                     </div>
-
-                    {{-- Categories --}}
-                    <div>
-                        <h3 class="text-sm font-semibold uppercase tracking-wider">{{ __('Categories') }}</h3>
-                        @php
-                            $footerCategories = \App\Models\Category::withCount(['posts' => fn ($q) => $q->published()])
-                                ->orderBy('name')
-                                ->get()
-                                ->filter(fn ($cat) => $cat->posts_count > 0)
-                                ->take(6);
-                        @endphp
-                        <ul class="mt-4 space-y-2">
-                            @foreach($footerCategories as $category)
-                                <li>
-                                    <a href="{{ route('categories.show', $category->slug) }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-accent" wire:navigate>
-                                        {{ $category->name }}
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
-                </div>
+                @endif
 
                 <div class="mt-8 pt-8 border-t border-zinc-200 dark:border-zinc-700">
                     <p class="text-sm text-zinc-500 dark:text-zinc-400 text-center">
-                        &copy; {{ date('Y') }} {{ config('blog.name', config('app.name')) }}. {{ __('All rights reserved.') }}
+                        @php
+                            $footerText = \App\Models\Setting::get('theme.footer_text', '&copy; {year} ' . config('blog.name', config('app.name')) . '. ' . __('All rights reserved.'));
+                            $footerText = str_replace('{year}', date('Y'), $footerText);
+                        @endphp
+                        {!! $footerText !!}
                     </p>
                 </div>
             </div>

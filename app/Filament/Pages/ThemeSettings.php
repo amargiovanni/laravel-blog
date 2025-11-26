@@ -46,6 +46,10 @@ class ThemeSettings extends Page implements HasForms
         'footer_text' => '',
         'logo' => '',
         'favicon' => '',
+        'site_title' => '',
+        'site_subtitle' => '',
+        'search_title' => 'Search',
+        'search_placeholder' => 'Search posts, categories, tags...',
     ];
 
     public static function canAccess(): bool
@@ -64,6 +68,10 @@ class ThemeSettings extends Page implements HasForms
             'footer_text' => Setting::get('theme.footer_text', $this->defaults['footer_text']),
             'logo' => Setting::get('theme.logo', $this->defaults['logo']),
             'favicon' => Setting::get('theme.favicon', $this->defaults['favicon']),
+            'site_title' => Setting::get('theme.site_title', $this->defaults['site_title']),
+            'site_subtitle' => Setting::get('theme.site_subtitle', $this->defaults['site_subtitle']),
+            'search_title' => Setting::get('theme.search_title', $this->defaults['search_title']),
+            'search_placeholder' => Setting::get('theme.search_placeholder', $this->defaults['search_placeholder']),
         ]);
     }
 
@@ -92,6 +100,19 @@ class ThemeSettings extends Page implements HasForms
                     ])
                     ->columns(2),
 
+                Forms\Components\Section::make('Homepage')
+                    ->schema([
+                        Forms\Components\TextInput::make('site_title')
+                            ->label('Site Title')
+                            ->placeholder(config('blog.name', config('app.name')))
+                            ->helperText('Main title displayed on homepage. Leave empty to use blog name.'),
+                        Forms\Components\TextInput::make('site_subtitle')
+                            ->label('Site Subtitle')
+                            ->placeholder(config('blog.description', 'A Laravel-powered blog'))
+                            ->helperText('Subtitle displayed below the main title. Leave empty to use blog description.'),
+                    ])
+                    ->columns(2),
+
                 Forms\Components\Section::make('Color Scheme')
                     ->schema([
                         Forms\Components\ColorPicker::make('primary_color')
@@ -111,6 +132,19 @@ class ThemeSettings extends Page implements HasForms
                             ->helperText('Main background color'),
                     ])
                     ->columns(3),
+
+                Forms\Components\Section::make('Search Page')
+                    ->schema([
+                        Forms\Components\TextInput::make('search_title')
+                            ->label('Page Title')
+                            ->placeholder('Search')
+                            ->helperText('The title displayed on the search page'),
+                        Forms\Components\TextInput::make('search_placeholder')
+                            ->label('Search Placeholder')
+                            ->placeholder('Search posts, categories, tags...')
+                            ->helperText('Placeholder text in the search input field'),
+                    ])
+                    ->columns(2),
 
                 Forms\Components\Section::make('Footer')
                     ->schema([

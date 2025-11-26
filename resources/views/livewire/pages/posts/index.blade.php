@@ -23,7 +23,11 @@ class extends Component {
     }
 }; ?>
 
-<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
+@php
+    $hasSidebarWidgets = \App\Models\WidgetInstance::forArea('primary_sidebar')->exists();
+@endphp
+
+<div @class(['mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12' => !$hasSidebarWidgets])>
     {{-- Header --}}
     <div class="mb-8">
         <h1 class="text-3xl font-bold">{{ __('Blog') }}</h1>
