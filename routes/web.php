@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FeedController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SubscriptionController;
@@ -43,6 +44,12 @@ Route::get('/newsletter/unsubscribe/{token}', [UnsubscribeController::class, 'sh
     ->name('newsletter.unsubscribe');
 Route::post('/newsletter/unsubscribe/{token}', [UnsubscribeController::class, 'unsubscribe'])
     ->name('newsletter.unsubscribe.confirm');
+
+// Contact
+Route::get('/contact', [ContactController::class, 'show'])->name('contact');
+Route::post('/contact', [ContactController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('contact.store');
 
 // Blog routes
 Volt::route('/', 'pages.home')->name('home');
