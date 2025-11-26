@@ -29,6 +29,7 @@ Volt::route('/tags', 'pages.tags.index')->name('tags.index');
 Volt::route('/tag/{slug}', 'pages.tag')->name('tags.show');
 Volt::route('/archives', 'pages.archives')->name('archives');
 Volt::route('/archives/{year}/{month?}', 'pages.archives-filter')->name('archives.filter');
+Volt::route('/search', 'pages.search.results')->name('search');
 
 // Static pages - must be last to catch remaining slugs
 Volt::route('/{slug}', 'pages.page')->name('pages.show');

@@ -19,6 +19,7 @@
         "laravel/prompts": "^0.3.7",
         "laravel/pulse": "^1.4",
         "laravel/sanctum": "^4.2",
+        "laravel/scout": "^10.22",
         "laravel/telescope": "^5.15",
         "laravel/tinker": "^2.10.1",
         "livewire/flux": "^2.6",

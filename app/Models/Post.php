@@ -16,11 +16,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use Laravel\Scout\Searchable;
 
 #[ObservedBy([PostObserver::class])]
 class Post extends Model
 {
-    use HasFactory, HasRevisions, LogsActivityAllDirty, SoftDeletes;
+    use HasFactory, HasRevisions, LogsActivityAllDirty, Searchable, SoftDeletes;
 
     /**
      * @var list<string>
@@ -156,6 +157,30 @@ class Post extends Model
         }
 
         return Str::limit(strip_tags($this->content), config('blog.posts.excerpt_length', 200));
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     * Only include database columns for database driver compatibility.
+     *
+     * @return array<string, mixed>
+     */
+    public function toSearchableArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'title' => $this->title,
+            'content' => $this->content,
+            'excerpt' => $this->getRawOriginal('excerpt'),
+        ];
+    }
+
+    /**
+     * Determine if the model should be searchable.
+     */
+    public function shouldBeSearchable(): bool
+    {
+        return $this->isPublished();
     }
 
     protected static function booted(): void

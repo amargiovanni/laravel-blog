@@ -14,10 +14,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use Laravel\Scout\Searchable;
 
 class Page extends Model
 {
-    use HasFactory, HasRevisions, LogsActivityAllDirty, SoftDeletes;
+    use HasFactory, HasRevisions, LogsActivityAllDirty, Searchable, SoftDeletes;
 
     /**
      * @var list<string>
@@ -251,6 +252,30 @@ class Page extends Model
         }
 
         return Str::limit(strip_tags($this->content ?? ''), 200);
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array<string, mixed>
+     */
+    public function toSearchableArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'title' => $this->title,
+            'content' => strip_tags($this->content ?? ''),
+            'excerpt' => strip_tags($this->getRawOriginal('excerpt') ?? ''),
+            'published_at' => $this->published_at?->timestamp,
+        ];
+    }
+
+    /**
+     * Determine if the model should be searchable.
+     */
+    public function shouldBeSearchable(): bool
+    {
+        return $this->isPublished();
     }
 
     protected static function booted(): void

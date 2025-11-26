@@ -122,7 +122,7 @@
                     {{-- Right side --}}
                     <div class="flex items-center space-x-4">
                         {{-- Search --}}
-                        <a href="{{ url('/search') }}" class="text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200" wire:navigate>
+                        <a href="{{ route('search') }}" class="text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200" wire:navigate>
                             <flux:icon.magnifying-glass class="size-5" />
                         </a>
 
