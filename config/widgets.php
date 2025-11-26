@@ -71,6 +71,11 @@ return [
             'description' => 'Custom HTML or text content',
             'class' => App\Widgets\CustomHtmlWidget::class,
         ],
+        'newsletter' => [
+            'name' => 'Newsletter',
+            'description' => 'Newsletter subscription form',
+            'class' => App\Widgets\NewsletterWidget::class,
+        ],
     ],
 
     /*

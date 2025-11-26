@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use App\Http\Controllers\FeedController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\UnsubscribeController;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
@@ -30,6 +32,17 @@ Route::feeds();
 Route::get('/category/{slug}/feed', [FeedController::class, 'category'])->name('categories.show.feed');
 Route::get('/tag/{slug}/feed', [FeedController::class, 'tag'])->name('tags.show.feed');
 Route::get('/author/{id}/feed', [FeedController::class, 'author'])->name('authors.feed');
+
+// Newsletter
+Route::post('/newsletter/subscribe', [SubscriptionController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('newsletter.subscribe');
+Route::get('/newsletter/verify/{subscriber}', [SubscriptionController::class, 'verify'])
+    ->name('newsletter.verify');
+Route::get('/newsletter/unsubscribe/{token}', [UnsubscribeController::class, 'show'])
+    ->name('newsletter.unsubscribe');
+Route::post('/newsletter/unsubscribe/{token}', [UnsubscribeController::class, 'unsubscribe'])
+    ->name('newsletter.unsubscribe.confirm');
 
 // Blog routes
 Volt::route('/', 'pages.home')->name('home');

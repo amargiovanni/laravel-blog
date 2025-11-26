@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\WidgetInstance;
 use App\Services\WidgetRegistry;
 use App\Widgets\CustomHtmlWidget;
+use App\Widgets\NewsletterWidget;
 use App\Widgets\SearchWidget;
 
 describe('WidgetInstance Model', function (): void {
@@ -80,6 +81,7 @@ describe('WidgetRegistry', function (): void {
         expect($widgets)->toHaveKey('tags');
         expect($widgets)->toHaveKey('archives');
         expect($widgets)->toHaveKey('custom_html');
+        expect($widgets)->toHaveKey('newsletter');
     });
 
     test('registry returns widget areas', function (): void {
@@ -228,5 +230,67 @@ describe('Widget Config', function (): void {
 
         expect($cache)->toHaveKey('enabled');
         expect($cache)->toHaveKey('ttl');
+    });
+});
+
+describe('NewsletterWidget', function (): void {
+    test('newsletter widget has correct name and description', function (): void {
+        expect(NewsletterWidget::getName())->toBe('Newsletter');
+        expect(NewsletterWidget::getDescription())->toBe('Newsletter subscription form');
+    });
+
+    test('newsletter widget has default settings', function (): void {
+        $defaults = NewsletterWidget::getDefaultSettings();
+
+        expect($defaults)->toHaveKey('description');
+        expect($defaults)->toHaveKey('button_text');
+        expect($defaults)->toHaveKey('show_name_field');
+        expect($defaults['button_text'])->toBe('Subscribe');
+        expect($defaults['show_name_field'])->toBeFalse();
+    });
+
+    test('newsletter widget has settings fields', function (): void {
+        $fields = NewsletterWidget::getSettingsFields();
+
+        expect($fields)->toBeArray();
+        expect(count($fields))->toBe(3);
+    });
+
+    test('newsletter widget renders subscription form', function (): void {
+        $instance = WidgetInstance::factory()->create([
+            'widget_type' => 'newsletter',
+            'title' => 'Newsletter',
+            'settings' => [
+                'description' => 'Stay updated!',
+                'button_text' => 'Join',
+                'show_name_field' => false,
+            ],
+        ]);
+
+        $widget = new NewsletterWidget($instance);
+        $view = $widget->render();
+        $html = $view->withErrors([])->render();
+
+        expect($html)->toContain('Newsletter');
+        expect($html)->toContain('Stay updated!');
+        expect($html)->toContain('Join');
+        expect($html)->toContain('newsletter/subscribe');
+    });
+
+    test('newsletter widget can show name field', function (): void {
+        $instance = WidgetInstance::factory()->create([
+            'widget_type' => 'newsletter',
+            'settings' => [
+                'description' => 'Subscribe',
+                'button_text' => 'Subscribe',
+                'show_name_field' => true,
+            ],
+        ]);
+
+        $widget = new NewsletterWidget($instance);
+        $view = $widget->render();
+        $html = $view->withErrors([])->render();
+
+        expect($html)->toContain('name="name"');
     });
 });
